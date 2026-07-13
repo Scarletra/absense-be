@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private jwtService: JwtService
+  ) {}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async login(nip: string, pass: string) {
+    const user = await this.usersRepository.findOneBy({ nip });
+    
+    if (!user) {
+      throw new UnauthorizedException();
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const isMatch = await bcrypt.compare(pass, user.passwordHash);
+    
+    if (!isMatch) {
+      throw new UnauthorizedException();
+    }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const payload = { 
+      sub: user.id, 
+      nip: user.nip, 
+      isHrd: user.isHrd, 
+      name: user.name 
+    };
+    
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+      user: payload
+    };
   }
 }

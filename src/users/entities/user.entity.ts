@@ -4,23 +4,23 @@ import { Attendance } from '../../attendance/entities/attendance.entity';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ unique: true })
-  nip: string;
+  nip!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column()
-  passwordHash: string;
+  passwordHash!: string;
 
   @Column({ default: false })
-  isHrd: boolean;
+  isHrd!: boolean;
 
   @OneToMany(() => Attendance, (attendance) => attendance.user)
-  attendances: Attendance[];
+  attendances!: Attendance[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 }

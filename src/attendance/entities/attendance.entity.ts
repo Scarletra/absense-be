@@ -4,17 +4,17 @@ import { User } from '../../users/entities/user.entity';
 @Entity('attendances')
 export class Attendance {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @ManyToOne(() => User, (user) => user.attendances)
-  user: User;
+  user!: User;
 
   @Column()
-  photoPath: string;
+  photoPath!: string;
 
   @Column()
-  status: string;
+  status!: string;
 
   @CreateDateColumn()
-  timestamp: Date;
+  timestamp!: Date;
 }
