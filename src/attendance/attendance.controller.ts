@@ -1,14 +1,15 @@
-import { Controller, Post, Get, UseInterceptors, UploadedFile, Body, Req } from '@nestjs/common';
+import { Controller, Post, Get, UseInterceptors, UploadedFile, Body } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { AttendanceService } from './attendance.service';
+import { CreateAttendanceDto } from './dto/create-attendance.dto';
 
 @Controller('api/attendance')
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
- @Post()
+  @Post()
   @UseInterceptors(
     FileInterceptor('photo', {
       storage: diskStorage({
@@ -21,8 +22,11 @@ export class AttendanceController {
       }),
     }),
   )
-  async createAttendance(@UploadedFile() file: any, @Body() body: any) {
-    const userId = body.userId;
+  async createAttendance(
+    @UploadedFile() file: any, 
+    @Body() createAttendanceDto: CreateAttendanceDto
+  ) {
+    const userId = parseInt(createAttendanceDto.userId, 10);
     const photoPath = file.path;
     
     return this.attendanceService.createRecord(userId, photoPath);
