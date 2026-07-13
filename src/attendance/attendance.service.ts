@@ -11,11 +11,18 @@ export class AttendanceService {
   ) {}
 
   async createRecord(userId: number, photoPath: string) {
+    const currentTime = new Date();
+    const cutoffHour = 9; 
+    
+    const isLate = currentTime.getHours() >= cutoffHour;
+    const status = isLate ? 'Terlambat' : 'Hadir';
+
     const record = this.attendanceRepo.create({
       user: { id: userId },
       photoPath,
-      status: 'Hadir',
+      status,
     });
+    
     return this.attendanceRepo.save(record);
   }
 
@@ -23,7 +30,10 @@ export class AttendanceService {
     return this.attendanceRepo.find({ 
       relations: {
         user: true
-      } 
+      },
+      order: {
+        timestamp: 'DESC'
+      }
     });
   }
 }
