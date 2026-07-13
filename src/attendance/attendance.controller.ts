@@ -1,4 +1,4 @@
-import { Controller, Post, Get, UseInterceptors, UploadedFile, Body } from '@nestjs/common';
+import { Controller, Post, Get, UseInterceptors, UploadedFile, Body, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -23,17 +23,17 @@ export class AttendanceController {
     }),
   )
   async createAttendance(
-    @UploadedFile() file: any, 
+    @UploadedFile() file: any,
     @Body() createAttendanceDto: CreateAttendanceDto
   ) {
     const userId = parseInt(createAttendanceDto.userId, 10);
     const photoPath = file.path;
-    
+
     return this.attendanceService.createRecord(userId, photoPath);
   }
 
   @Get()
-  async getAllAttendance() {
-    return this.attendanceService.findAll();
+  async getAllAttendance(@Query('userId') userId?: string) {
+    return this.attendanceService.findAll(userId ? parseInt(userId, 10) : undefined);
   }
 }
